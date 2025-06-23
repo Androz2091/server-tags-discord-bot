@@ -56,6 +56,12 @@ export const run: SlashCommandRunFunction = async (interaction) => {
 
     const role = options.getRole("role", true);
 
+    // check for role position
+    const memberMe = await interaction.guild!.members.fetchMe();
+    if (role.position >= memberMe.roles.highest.position) {
+      return interaction.reply(errorEmbed("I cannot assign this role because it is higher than my highest role."));
+    }
+
     await (await getPostgres).getRepository(ServerTagConfig).upsert({
       serverId: interaction.guildId,
       rewardRoleId: role.id,

@@ -142,7 +142,9 @@ client.ws.on(GatewayDispatchEvents.GuildMemberUpdate, async (data) => {
 				}
 				const member = guild.members.cache.get(data.user.id);
 				if (member) {
-					member.roles.add(rewardRoleId);
+					member.roles.add(rewardRoleId).catch((error) => {
+						console.error(`Failed to add role ${rewardRoleId} to user ${data.user.id}:`, error);
+					});
 				} else {
 					console.log(`Member ${data.user.id} not found in guild ${data.guild_id}.`);
 				}
