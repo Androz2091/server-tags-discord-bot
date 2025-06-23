@@ -12,20 +12,56 @@ Resource.validate = validate;
 AdminJS.registerAdapter({ Database, Resource });
 
 @Entity()
-export class User extends BaseEntity {
+export class ServerTagConfig extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id!: number;
 
 	@Column({
-		length: 32,
+		unique: true,
 	})
+	serverId!: string;
+
+	@Column({
+		nullable: true,
+	})
+	rewardChannelId!: string;
+
+	@Column({
+		nullable: true,
+	})
+	rewardMessage!: string;
+
+	@Column({
+		nullable: true
+	})
+	rewardRoleId!: string;
+}
+
+@Entity()
+export class ServerTagHistory extends BaseEntity {
+	@PrimaryGeneratedColumn()
+	id!: number;
+
+	@Column()
+	serverId!: string;
+
+	@Column()
 	userId!: string;
 
 	@Column()
-	money!: number;
+	fromTag!: string;
+
+	@Column()
+	toTag!: string;
+
+	@Column({
+		type: "timestamp",
+		default: () => "CURRENT_TIMESTAMP",
+	})
+	createdAt!: Date;
 }
 
-const entities = [User];
+const entities = [ServerTagConfig, ServerTagHistory];
 
 let resolveInitialize: (value: DataSource) => void;
 export const getPostgres: Promise<DataSource> = new Promise((resolve) => {

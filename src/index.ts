@@ -3,15 +3,13 @@ config();
 
 import "./sentry.js";
 
-import { initialize as initializeDatabase } from "./database.js";
+import { getPostgres, initialize as initializeDatabase, ServerTagConfig, ServerTagHistory } from "./database.js";
 import { loadContextMenus, loadMessageCommands, loadSlashCommands, synchronizeSlashCommands } from "./handlers/commands.js";
 
-import { syncSheets } from "./integrations/sheets.js";
-
-import { Client, IntentsBitField } from "discord.js";
+import { Client, GatewayDispatchEvents, IntentsBitField, TextChannel } from "discord.js";
 import { loadTasks } from "./handlers/tasks.js";
 export const client = new Client({
-	intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages],
+	intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.GuildMembers],
 });
 
 const { slashCommands, slashCommandsData } = await loadSlashCommands(client);
@@ -67,8 +65,89 @@ client.on("ready", () => {
 		console.log("Database not initialized, as no keys were specified 📦");
 	}
 
-	if (process.env.SPREADSHEET_ID) {
-		syncSheets();
+});
+
+client.ws.on(GatewayDispatchEvents.GuildMemberUpdate, async (data) => {
+
+	//	console.log(`User updated: ${data.user.id}`);
+	//console.log(data)
+
+	const lastUserHistory = await (await getPostgres).getRepository(ServerTagHistory).findOne({
+		where: {
+			userId: data.user.id,
+		},
+		order: {
+			createdAt: "DESC",
+		},
+	});
+
+	const userClan = data.user?.primary_guild;
+	console.log(`User ${data.user.id} has clan: ${userClan ? userClan.tag : "No clan"}`);
+	if (!userClan || !userClan.tag) {
+
+		if (!lastUserHistory) return;
+		if (lastUserHistory.toTag === "EMPTY_TAG") return;
+		else {
+			console.log(`User ${data.user.id} has no clan, but has a last tag history, setting to EMPTY_TAG`);
+			await (await getPostgres).getRepository(ServerTagHistory).update({ userId: data.user.id }, {
+				fromTag: lastUserHistory.toTag,
+				toTag: "EMPTY_TAG",
+			});
+		}
+	} else {
+		if (lastUserHistory && lastUserHistory.toTag === userClan.tag) {
+			console.log(`User ${data.user.id} has the same tag as last history, skipping`);
+			return;
+		}
+
+		console.log(`User ${data.user.id} has a new tag: ${userClan.tag}`);
+		await (await getPostgres).getRepository(ServerTagHistory).insert({
+			serverId: data.guild_id,
+			userId: data.user.id,
+			fromTag: lastUserHistory ? lastUserHistory.toTag : "EMPTY_TAG",
+			toTag: userClan.tag,
+		});
+
+		if (userClan.identity_guild_id == data.guild_id) {
+
+			const serverTagConfig = await (await getPostgres).getRepository(ServerTagConfig).findOne({
+				where: {
+					serverId: data.guild_id,
+				},
+			});
+
+			if (!serverTagConfig) {
+				console.log(`No server tag config found for server ${data.guild_id}`);
+				return;
+			}
+
+			const rewardMessage = serverTagConfig.rewardMessage;
+			const rewardChannelId = serverTagConfig.rewardChannelId;
+			const rewardRoleId = serverTagConfig.rewardRoleId;
+
+			if (rewardMessage && rewardChannelId) {
+				const channel = client.channels.cache.get(rewardChannelId) as TextChannel;
+				if (channel && channel.isTextBased()) {
+					channel.send(rewardMessage.replace("{user}", `<@${data.user.id}>`).replace("{tag}", userClan.tag));
+				} else {
+					console.log(`Reward channel ${rewardChannelId} not found or not a text channel.`);
+				}
+			}
+
+			if (rewardRoleId) {
+				const guild = client.guilds.cache.get(data.guild_id);
+				if (!guild) {
+					console.log(`Guild ${data.guild_id} not found.`);
+					return;
+				}
+				const member = guild.members.cache.get(data.user.id);
+				if (member) {
+					member.roles.add(rewardRoleId);
+				} else {
+					console.log(`Member ${data.user.id} not found in guild ${data.guild_id}.`);
+				}
+			}
+		}
 	}
 });
 
