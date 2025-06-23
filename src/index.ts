@@ -107,47 +107,56 @@ client.ws.on(GatewayDispatchEvents.GuildMemberUpdate, async (data) => {
 			fromTag: lastUserHistory ? lastUserHistory.toTag : "EMPTY_TAG",
 			toTag: userClan.tag,
 		});
+		const shouldHavePerks = userClan.identity_guild_id == data.guild_id;
+		console.log(`User ${data.user.id} should have perks: ${shouldHavePerks}`);
 
-		if (userClan.identity_guild_id == data.guild_id) {
+		const serverTagConfig = await (await getPostgres).getRepository(ServerTagConfig).findOne({
+			where: {
+				serverId: data.guild_id,
+			},
+		});
 
-			const serverTagConfig = await (await getPostgres).getRepository(ServerTagConfig).findOne({
-				where: {
-					serverId: data.guild_id,
-				},
-			});
+		if (!serverTagConfig) {
+			console.log(`No server tag config found for server ${data.guild_id}`);
+			return;
+		}
 
-			if (!serverTagConfig) {
-				console.log(`No server tag config found for server ${data.guild_id}`);
+		const rewardMessage = serverTagConfig.rewardMessage;
+		const rewardChannelId = serverTagConfig.rewardChannelId;
+		const rewardRoleId = serverTagConfig.rewardRoleId;
+
+		if (rewardMessage && rewardChannelId && shouldHavePerks) {
+			const channel = client.channels.cache.get(rewardChannelId) as TextChannel;
+			if (channel && channel.isTextBased()) {
+				channel.send(rewardMessage.replace("{user}", `<@${data.user.id}>`).replace("{tag}", userClan.tag));
+			} else {
+				console.log(`Reward channel ${rewardChannelId} not found or not a text channel.`);
+			}
+		}
+
+		if (rewardRoleId) {
+			const guild = client.guilds.cache.get(data.guild_id);
+			if (!guild) {
+				console.log(`Guild ${data.guild_id} not found.`);
 				return;
 			}
-
-			const rewardMessage = serverTagConfig.rewardMessage;
-			const rewardChannelId = serverTagConfig.rewardChannelId;
-			const rewardRoleId = serverTagConfig.rewardRoleId;
-
-			if (rewardMessage && rewardChannelId) {
-				const channel = client.channels.cache.get(rewardChannelId) as TextChannel;
-				if (channel && channel.isTextBased()) {
-					channel.send(rewardMessage.replace("{user}", `<@${data.user.id}>`).replace("{tag}", userClan.tag));
-				} else {
-					console.log(`Reward channel ${rewardChannelId} not found or not a text channel.`);
-				}
-			}
-
-			if (rewardRoleId) {
-				const guild = client.guilds.cache.get(data.guild_id);
-				if (!guild) {
-					console.log(`Guild ${data.guild_id} not found.`);
+			const member = guild.members.cache.get(data.user.id);
+			if (member) {
+				if (member.roles.cache.has(rewardRoleId) && !shouldHavePerks) {
+					console.log(`User ${data.user.id} already has role ${rewardRoleId}, removing it.`);
+					member.roles.remove(rewardRoleId).catch((error) => {
+						console.error(`Failed to remove role ${rewardRoleId} from user ${data.user.id}:`, error);
+					});
 					return;
-				}
-				const member = guild.members.cache.get(data.user.id);
-				if (member) {
+				} else if (!member.roles.cache.has(rewardRoleId) && shouldHavePerks) {
+					console.log(`User ${data.user.id} does not have role ${rewardRoleId}, adding it.`);
 					member.roles.add(rewardRoleId).catch((error) => {
 						console.error(`Failed to add role ${rewardRoleId} to user ${data.user.id}:`, error);
 					});
-				} else {
-					console.log(`Member ${data.user.id} not found in guild ${data.guild_id}.`);
 				}
+				console.log(`User ${data.user.id} has role ${rewardRoleId}: ${member.roles.cache.has(rewardRoleId)}`);
+			} else {
+				console.log(`User ${data.user.id} not found in guild ${data.guild_id}.`);
 			}
 		}
 	}
