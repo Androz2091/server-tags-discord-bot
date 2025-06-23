@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stag – Landing Page</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Variables & Reset */
+    :root {
+      --primary: #4CAF50;
+      --primary-hover: #45A049;
+      --bg: #f0f2f5;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --text-light: #555555;
+      --transition: 0.3s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    .container { width: 90%; max-width: 1000px; margin: auto; padding: 2rem 0; }
+
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 2rem; }
+    .logo { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav li a { position: relative; padding: 0.25rem 0; font-weight: 600; transition: color var(--transition); }
+    nav li a::after { content: ''; position: absolute; width: 0; height: 2px; background: var(--primary); bottom: -2px; left: 0; transition: width var(--transition); }
+    nav li a:hover, nav li a:focus { color: var(--primary-hover); }
+    nav li a:hover::after, nav li a:focus::after { width: 100%; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 4rem 0; animation: fadeIn 1s ease; }
+    .hero img.icon { width: 140px; height: 140px; margin: 0 auto 1rem; display: block; }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 0.75rem; font-weight: 700; }
+    .hero p { font-size: 1rem; margin-bottom: 1.5rem; color: var(--text-light); max-width: 600px; margin-left: auto; margin-right: auto; }
+    .btn-primary { display: inline-block; padding: 0.75rem 1.75rem; background: var(--primary); color: #fff; border-radius: 6px; font-weight: 600; transition: background var(--transition), transform var(--transition); }
+    .btn-primary:hover, .btn-primary:focus { background: var(--primary-hover); transform: translateY(-2px); }
+
+    /* Features */
+    #features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2.5rem;
+      justify-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform var(--transition), box-shadow var(--transition);
+      max-width: 320px;
+    }
+    .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .card p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem; }
+    .card img.screenshot { width: 100%; height: auto; margin-top: 0.5rem; border-radius: 8px; }
+    .card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+    /* Invite Section */
+    #invite { text-align: center; padding: 3rem 0; animation: fadeIn 1.2s ease; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <header class="container">
+    <div class="logo">Stag</div>
+    <nav>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#invite">Invite</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero container">
+    <img src="https://videos.openai.com/vg-assets/assets%2Ftask_01jyf6jpf2e71arztzd4emh1tq%2F1750709448_img_0.webp?st=2025-06-23T18%3A21%3A30Z&se=2025-06-29T19%3A21%3A30Z&sks=b&skt=2025-06-23T18%3A21%3A30Z&ske=2025-06-29T19%3A21%3A30Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=8ebb0df1-a278-4e2e-9c20-f2d373479b3a&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=AofrRtFyCKmzOKUBcxsRBnasWMplPazx5bd9Xaof4vc%3D&az=oaivgprodscus" alt="Stag Icon" class="icon" />
+    <h1>Reward members when they use your Server Tag</h1>
+    <p>Automatically detect user tags and grant rewards—custom messages, roles, and more.</p>
+    <a href="#invite" class="btn-primary">Invite Stag</a>
+  </section>
+
+  <section id="features" class="container">
+    <div class="card">
+      <h3>Tag Detection</h3>
+      <p>Monitors member tags in real time and logs any changes instantly.</p>
+      <img src="https://github.com/Androz2091/server-tags-discord-bot/raw/main/demo.png" alt="Screenshot of Tag Detection" class="screenshot" />
+    </div>
+    <div class="card">
+      <h3>Custom Reward Messages</h3>
+      <p>Send personalized messages to a channel when a member gains or changes a tag.</p>
+      <img src="path/to/screenshot-reward-messages.png" alt="Screenshot of Custom Reward Messages" class="screenshot" />
+    </div>
+    <div class="card">
+      <h3>Auto-Assign Roles</h3>
+      <p>Automatically assign or remove roles based on a member's current tag.</p>
+      <img src="path/to/screenshot-auto-roles.png" alt="Screenshot of Auto-Assign Roles" class="screenshot" />
+    </div>
+  </section>
+
+  <section id="invite" class="container">
+    <a href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot%20applications.commands&permissions=0" class="btn-primary">Add Stag</a>
+  </section>
+
+</body>
+</html>
