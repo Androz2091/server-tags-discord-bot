@@ -17,8 +17,6 @@
   <meta name="twitter:url" content="https://stagbot.net/" />
   <meta name="twitter:title" content="Stag – Reward Your Discord Members with Server Tag Detection & Auto-Rewards" />
   <meta name="twitter:description" content="Automatically detect server tag usage and reward members with custom messages, roles, and more using Stag bot for Discord." />
-  <!-- Google / Search Console Verification -->
-  <!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_TOKEN" /> -->
   <!-- JSON-LD Structured Data -->
   <script type="application/ld+json">
   {
@@ -68,8 +66,19 @@
     .hero img.icon { width: 140px; height: 140px; margin: 0 auto 1rem; display: block; cursor: pointer; }
     .hero h1 { font-size: 2.5rem; margin-bottom: 0.75rem; font-weight: 700; }
     .hero p { font-size: 1rem; margin-bottom: 1.5rem; color: var(--text-light); max-width: 600px; margin-left: auto; margin-right: auto; }
+
+    /* Button Group */
+    .button-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    @media (max-width: 600px) {
+      .button-group { flex-direction: column; }
+    }
+
+    /* Buttons */
     .btn-primary { display: inline-block; padding: 0.75rem 1.75rem; background: var(--primary); color: #fff; border-radius: 6px; font-weight: 600; transition: background var(--transition), transform var(--transition); }
     .btn-primary:hover, .btn-primary:focus { background: var(--primary-hover); transform: translateY(-2px); }
+
+    .btn-secondary { display: inline-block; padding: 0.75rem 1.75rem; background: #fff; color: var(--primary); border: 2px solid var(--primary); border-radius: 6px; font-weight: 600; transition: background var(--transition), color var(--transition), transform var(--transition); }
+    .btn-secondary:hover, .btn-secondary:focus { background: var(--primary-hover); color: #fff; transform: translateY(-2px); border-color: var(--primary-hover); }
 
     /* Features */
     #features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2.5rem; justify-items: center; justify-content: center; }
@@ -109,7 +118,10 @@
       <img src="https://github.com/Androz2091/server-tags-discord-bot/raw/main/assets/stag.webp" alt="Stag bot icon" class="icon" />
       <h1>Reward members when they use your Server Tag</h1>
       <p>Stag detects and rewards members in real time on Discord when they use your server tag—send custom messages, auto-assign roles, and boost engagement.</p>
-      <a href="https://discord.com/oauth2/authorize?client_id=1386786956540907673&scope=bot%20applications.commands&permissions=268453888" target="_blank" class="btn-primary">Invite Stag</a>
+      <div class="button-group">
+        <a href="https://discord.com/oauth2/authorize?client_id=1386786956540907673&scope=bot%20applications.commands&permissions=268453888" target="_blank" class="btn-primary">Invite Stag</a>
+        <a href="https://discord.gg/Q267huS3Qn" target="_blank" class="btn-secondary">Support Server</a>
+      </div>
     </section>
 
     <section id="features" class="container" aria-labelledby="features-heading">
