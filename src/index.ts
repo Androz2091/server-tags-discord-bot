@@ -57,6 +57,8 @@ client.on("messageCreate", async (message) => {
 client.on("ready", () => {
 	console.log(`Logged in as ${client.user?.tag}. Ready to serve ${client.users.cache.size} users in ${client.guilds.cache.size} servers 🚀`);
 
+	client.user?.setActivity("stagbot.net");
+
 	if (process.env.DB_NAME) {
 		initializeDatabase().then(() => {
 			console.log("Database initialized 📦");
